@@ -1,23 +1,25 @@
+import os
 from tkinter import *
 from tkinter import messagebox
+
+import requests
+
+BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 
 def tell_weather():
 
-    import requests
-    import json
-
-    api_key = "dd9f8a17ae0b73d205cbf9b3b6bcc39f"
-
-    base_url = "http://api.openweathermap.org/data/2.5/weather?"
+    # Read the key from the environment so it is never committed to git.
+    api_key = os.environ.get("OPENWEATHER_API_KEY")
+    if not api_key:
+        messagebox.showerror(
+            "Error", "Set the OPENWEATHER_API_KEY environment variable first.")
+        return
 
     city_name = city_field.get()
 
-    complete_url = base_url + "appid =" + api_key + "&q =" + city_name
-
     response = requests.get(
-        "http://api.openweathermap.org/data/2.5/weather?q=" + city_name +
-        "&appid=25bb0be2a718d9cc2c9bf60994549146")
+        BASE_URL, params={"q": city_name, "appid": api_key}, timeout=10)
 
     x = response.json()
 

@@ -14,7 +14,9 @@ Weather Map Ai
 
 4. Click generate API and your API key and ID will be ready
 
-5. use that key in the weather.py file
+5. Set it as an environment variable before running weather.py:
+   macOS/Linux:  export OPENWEATHER_API_KEY=your_key
+   Windows:      set OPENWEATHER_API_KEY=your_key
 ```
 ## Output after running weather.py file
 
