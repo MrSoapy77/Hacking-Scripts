@@ -17,11 +17,12 @@ def normalize_timestamp(time):
 producer = KafkaProducer(bootstrap_servers=['localhost:9092'],api_version=(2,0,2))
 topic_name = 'dhruv2612'
 def get_twitter_data():
-  res = api.search("BCCI")
+  # tweepy 4 renamed API.search to API.search_tweets
+  res = api.search_tweets("BCCI")
   for i in res:
     record = ''
     record += str(i.user.id_str)
-    record = '\n'
+    record += '\n'
     record += str(i.text)
     record += ';\n'
     record += str(normalize_timestamp(str(i.created_at)))
