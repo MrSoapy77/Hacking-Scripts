@@ -255,7 +255,7 @@ shortcutbar = Frame(root, height=25)
 icons = ['new_file', 'open_file', 'save', 'cut', 'copy', 'paste', 'undo', 'redo', 'on_find', 'about']
 for i, icon in enumerate(icons):
     tbicon = PhotoImage(file='Images/'+icon+'.gif')
-    cmd = eval(icon)
+    cmd = globals()[icon]  # look up the handler function by name
     toolbar = Button(shortcutbar, image=tbicon,  command=cmd)
     toolbar.image = tbicon  #http://effbot.org/tkinterbook/photoimage.htm
     toolbar.pack(side=LEFT)
@@ -281,7 +281,7 @@ infobar.pack(expand=NO, fill=None, side=RIGHT, anchor='se')
 #context popup menu
 cmenu = Menu(textPad,tearoff=0)
 for i in ('cut', 'copy', 'paste', 'undo', 'redo'):
-    cmd = eval(i)
+    cmd = globals()[i]
     cmenu.add_command(label=i, compound=LEFT, command=cmd)  
 cmenu.add_separator()
 cmenu.add_command(label='Select All', underline=7, command=select_all)
