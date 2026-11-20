@@ -11,7 +11,13 @@ Twitter Data Streaming is a python program
 ### How to run?
 - First install basic modules which are used to run the program [tweepy, kafka, kafka-python]
 - Go to twitter Developer and generate the keys [consumer_key,consumer_secret,access_token,access_token_secret]
-- copy the keys and paste in the code
+- Set the keys as environment variables (never paste them into the code):
+  ```bash
+  export TWITTER_CONSUMER_KEY=...
+  export TWITTER_CONSUMER_SECRET=...
+  export TWITTER_ACCESS_TOKEN=...
+  export TWITTER_ACCESS_TOKEN_SECRET=...
+  ```
 - after doing the required changes,You have to install kafka first.
 - After Installing Kafka ,run the zookeeper by using the command 'zookeeper-server-start.sh ./config/zookeeper.properties' 
 - Then start the kafka by using the command 'kafka-server-start.sh ./config/server.properties' 
