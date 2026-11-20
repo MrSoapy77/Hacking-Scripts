@@ -1,0 +1,40 @@
+name: Python syntax check
+
+# Fails the build if any Python file in the repository cannot be parsed by
+# Python 3 (for example Python 2 print statements, or a README saved as .py).
+# It only parses files; it never runs contributed scripts.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Parse all Python files
+        shell: python
+        run: |
+          import ast, pathlib, sys, warnings
+          warnings.simplefilter("ignore")
+          failed = False
+          for path in sorted(pathlib.Path(".").rglob("*.py")):
+              if ".git" in path.parts:
+                  continue
+              try:
+                  ast.parse(path.read_bytes(), str(path))
+              except SyntaxError as e:
+                  print(f"::error file={path},line={e.lineno}::{e.msg}")
+                  failed = True
+          sys.exit(1 if failed else 0)
