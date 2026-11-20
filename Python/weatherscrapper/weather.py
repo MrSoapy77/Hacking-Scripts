@@ -18,18 +18,30 @@ def tell_weather():
 
     city_name = city_field.get()
 
-    response = requests.get(
-        BASE_URL, params={"q": city_name, "appid": api_key}, timeout=10)
+    try:
+        # units=metric makes the API return Celsius directly.
+        response = requests.get(
+            BASE_URL,
+            params={"q": city_name, "appid": api_key, "units": "metric"},
+            timeout=10)
+        x = response.json()
+    except (requests.RequestException, ValueError):
+        messagebox.showerror(
+            "Error", "Could not reach the weather service. Check your connection.")
+        return
 
-    x = response.json()
+    # The API returns cod as an int on success and a string on errors,
+    # so compare as strings. Any non-200 (bad key, rate limit, unknown
+    # city) has no "main" section to read.
+    if str(x.get("cod")) == "200":
 
-    if x["cod"] != "404":
+        clear_all()
+        city_field.insert(0, city_name)
 
         y = x["main"]
 
         current_temperature = y["temp"]
-        current_temperatureDegree = current_temperature - 273.5
-        finalTemp = round(current_temperatureDegree, 2)
+        finalTemp = round(current_temperature, 2)
 
         current_pressure = y["pressure"]
 
@@ -38,27 +50,28 @@ def tell_weather():
         z = x["weather"]
 
         weather_description = z[0]["description"]
-        min_temp = y["temp_min"]
-        min1 = min_temp - 273.5
-        min2 = round(min1, 2)
-        max_temp = y["temp_max"]
-        max1 = max_temp - 273.5
-        max2 = round(max1, 2)
+        min2 = round(y["temp_min"], 2)
+        max2 = round(y["temp_max"], 2)
 
-        temp_field.insert(15, str(finalTemp) + " degree")
+        temp_field.insert(15, str(finalTemp) + " °C")
         atm_field.insert(10, str(current_pressure) + " hPa")
         humid_field.insert(15, str(current_humidiy) + " %")
         desc_field.insert(10, str(weather_description))
-        min_field.insert(15, str(min2) + " degree")
-        max_field.insert(15, str(max2) + " degree")
+        min_field.insert(15, str(min2) + " °C")
+        max_field.insert(15, str(max2) + " °C")
 
-    else:
+    elif str(x.get("cod")) == "404":
 
         messagebox.showerror(
             "Error", "City Not Found \n"
             "Please enter valid city name")
 
         city_field.delete(0, END)
+
+    else:
+
+        messagebox.showerror(
+            "Error", x.get("message", "Unexpected response from the weather service."))
 
 
 def clear_all():
