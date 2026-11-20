@@ -1,6 +1,8 @@
 from tkinter import *
 import tkinter.messagebox
+import ast
 import math
+import operator
 
 # on button press
 root = Tk()
@@ -316,14 +318,48 @@ def mod_clicked():
     disp.insert(pos, '%')
 
 
+_BIN_OPS = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.Mod: operator.mod,
+    ast.Pow: operator.pow,
+}
+_UNARY_OPS = {ast.UAdd: operator.pos, ast.USub: operator.neg}
+
+
+def safe_eval(expression):
+    """Evaluate an arithmetic expression without running arbitrary code.
+
+    Only numbers, + - * / % ** and parentheses are allowed. eval() would
+    execute anything typed into the display, e.g. __import__('os').
+    """
+    def _eval(node):
+        if isinstance(node, ast.Expression):
+            return _eval(node.body)
+        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+            return node.value
+        if isinstance(node, ast.BinOp) and type(node.op) in _BIN_OPS:
+            left, right = _eval(node.left), _eval(node.right)
+            if isinstance(node.op, ast.Pow) and abs(right) > 1000:
+                raise ValueError("exponent too large")
+            return _BIN_OPS[type(node.op)](left, right)
+        if isinstance(node, ast.UnaryOp) and type(node.op) in _UNARY_OPS:
+            return _UNARY_OPS[type(node.op)](_eval(node.operand))
+        raise ValueError("unsupported expression")
+
+    return _eval(ast.parse(expression, mode="eval"))
+
+
 def btneq_clicked(*args):
     try:
         ans = disp.get()
-        ans = eval(ans)
+        ans = safe_eval(ans)
         disp.delete(0, END)
         disp.insert(0, ans)
 
-    except:
+    except Exception:
         tkinter.messagebox.showerror(
             "Value Error", "Check your values and operators")
 
